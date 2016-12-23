@@ -7,7 +7,7 @@ from Operators import *
 from Question import *
 
 
-def random_letter_but(exclude = ""):
+def random_letter_but(exclude=""):
     chosen = string.upper(random.choice(string.ascii_letters + "_"))
     if chosen != exclude:
         return chosen
@@ -15,12 +15,12 @@ def random_letter_but(exclude = ""):
         return random_letter_but(exclude)
 
 
-def random_int_but(exclude, max):
-    chosen = random.randint(0, max)
+def random_int_but(exclude, max_int):
+    chosen = random.randint(0, max_int)
     if chosen != exclude:
         return chosen
     else:
-        return random_int_but(exclude, max)
+        return random_int_but(exclude, max_int)
 
 
 def obtain_quiz_answer():
@@ -35,16 +35,16 @@ def obtain_multiple_choice(correct_answer, correct_result, max_number, num_choic
                  then the function will generate one candidate, which is the correct one: (12, n)
                  and num_choices - 1 = 3 candidates which are wrong answers, i.e. not 12, smaller than max_number (=100)
     """
-    multiple_choice = []
-    multiple_choice.append((correct_result, correct_answer))
+    multiple_choice = [(correct_result, correct_answer)]
     for i in range(1, num_choices):
         multiple_choice.append((random_int_but(correct_result, max_number), random_letter_but(correct_answer)))
     random.shuffle(multiple_choice)
     return multiple_choice
 
 
-def obtain_questions(answer, max_number = 200, operators = [Operators.MULTIPLICATION, Operators.DIVISION, Operators.ADDITION, Operators.SUBTRACTION]):
-
+def obtain_questions(answer, max_number=200, operators=None):
+    if operators is None:
+        operators = [Operators.MULTIPLICATION, Operators.DIVISION, Operators.ADDITION, Operators.SUBTRACTION]
     questions = []
 
     for letter in answer:
@@ -62,7 +62,7 @@ def obtain_questions(answer, max_number = 200, operators = [Operators.MULTIPLICA
 
         # o1 + o2 = r
         if operator in OperatorFamilies.ADDITIVE:
-            r  = random.randint(0, max_number)
+            r = random.randint(0, max_number)
             o1 = random.randint(0, r)
             o2 = r - o1
 
@@ -71,23 +71,24 @@ def obtain_questions(answer, max_number = 200, operators = [Operators.MULTIPLICA
         else:
             question = Question(r, operator, o1, o2)
 
-
-
         question.multiple_choice = obtain_multiple_choice(letter, question.result, max_number, 4)
         questions.append(question)
     return questions
 
+
 def main():
     quiz_answer = obtain_quiz_answer()
-    questions = obtain_questions(quiz_answer, max_number=120, operators = [Operators.MULTIPLICATION,  Operators.ADDITION, Operators.DIVISION, Operators.SUBTRACTION])
+    questions = obtain_questions(quiz_answer, max_number=120,
+                                 operators=[Operators.MULTIPLICATION, Operators.ADDITION, Operators.DIVISION,
+                                            Operators.SUBTRACTION])
     for q in questions:
         print q
         print "\n"
 
-    for blank in quiz_answer:
+    for _ in quiz_answer:
         sys.stdout.write("___   ")
+
 
 if __name__ == "__main__":
     main()
-
 
